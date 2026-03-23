@@ -21,7 +21,7 @@ function Navbar() {
   return (
     <nav className="navbar">
   <NavLink to="/" className="nav-logo">
-  <img src={logo} alt="" height={22} />
+  <img src={logo} alt="" width={50} height={40} />
   {t.brand}
 </NavLink>
       <div className="nav-links">
