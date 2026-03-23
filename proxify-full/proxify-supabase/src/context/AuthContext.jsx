@@ -1,4 +1,3 @@
-// src/context/AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../supabase'
 
@@ -9,27 +8,26 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    const timeout = setTimeout(() => setLoading(false), 3000)
 
-    // Listen for auth changes
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setUser(session?.user ?? null)
+        setLoading(false)
+        clearTimeout(timeout)
+      })
+      .catch(() => {
+        setLoading(false)
+        clearTimeout(timeout)
+      })
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const currentUser = session?.user ?? null
       setUser(currentUser)
 
-      // Create profile row if first sign-in
       if (currentUser) {
-        const { data: existing } = await supabase
-          .from('users')
-          .select('id')
-          .eq('id', currentUser.id)
-          .single()
-
-        if (!existing) {
-          await supabase.from('users').insert({
+        try {
+          await supabase.from('users').upsert({
             id: currentUser.id,
             name: currentUser.user_metadata?.full_name || currentUser.email,
             email: currentUser.email,
@@ -41,12 +39,17 @@ export function AuthProvider({ children }) {
             skills_needed: [],
             rating: 0,
             review_count: 0,
-          })
+          }, { onConflict: 'id', ignoreDuplicates: false })
+        } catch (e) {
+          console.log('profile upsert error:', e)
         }
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timeout)
+    }
   }, [])
 
   const loginWithGoogle = () =>
@@ -55,7 +58,12 @@ export function AuthProvider({ children }) {
       options: { redirectTo: window.location.origin },
     })
 
-  const logout = () => supabase.auth.signOut()
+  const logout = () => {
+    localStorage.clear()
+    sessionStorage.clear()
+    setUser(null)
+    window.location.href = '/'
+  }
 
   return (
     <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout }}>
