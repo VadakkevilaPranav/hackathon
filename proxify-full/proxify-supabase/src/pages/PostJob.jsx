@@ -29,7 +29,7 @@ export default function PostJob() {
       const jobId = await createJob(user.id, form)
       showToast(t.postSuccess)
       setTimeout(() => navigate(`/job/${jobId}`), 1000)
-    } catch { showToast(t.postError) }
+    } catch(err) { console.error('Post job error:', err); showToast(t.postError) }
     finally { setLoading(false) }
   }
 

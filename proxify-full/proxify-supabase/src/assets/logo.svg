@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Location pin body -->
+  <path d="M50 5C30.7 5 15 20.7 15 40c0 25 35 55 35 55s35-30 35-55C85 20.7 69.3 5 50 5z" fill="#1a7a3c"/>
+  <!-- Inner circle (white) -->
+  <circle cx="50" cy="38" r="18" fill="white" opacity="0.95"/>
+  <!-- Stylized P -->
+  <path d="M43 28v20M43 28h8c4.4 0 8 3.6 8 8s-3.6 8-8 8h-8" stroke="#1a7a3c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
