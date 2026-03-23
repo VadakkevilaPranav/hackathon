@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getJobById, getUserById, expressInterest, addReview } from "../services/jobService";
 import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LanguageContext";
 
 function StarPicker({ value, onChange }) {
   return (
@@ -21,13 +22,12 @@ function StarPicker({ value, onChange }) {
 export default function JobDetail() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { t } = useLang();
   const [job, setJob] = useState(null);
   const [poster, setPoster] = useState(null);
   const [loading, setLoading] = useState(true);
   const [interested, setInterested] = useState(false);
   const [toast, setToast] = useState("");
-
-  // Review state
   const [showReview, setShowReview] = useState(false);
   const [stars, setStars] = useState(5);
   const [comment, setComment] = useState("");
@@ -53,10 +53,10 @@ export default function JobDetail() {
   };
 
   const handleInterest = async () => {
-    if (!user) return showToast("Please sign in first.");
+    if (!user) return showToast(t.signInFirst);
     await expressInterest(id, user.uid);
     setInterested(true);
-    showToast("Interest expressed! The poster will see your profile.");
+    showToast(t.interestToast);
   };
 
   const handleReview = async () => {
@@ -64,10 +64,10 @@ export default function JobDetail() {
     setReviewSubmitting(true);
     try {
       await addReview({ jobId: id, reviewerId: user.uid, revieweeId: job.postedBy, stars, comment });
-      showToast("Review submitted!");
+      showToast(t.reviewSuccess);
       setShowReview(false);
-    } catch (err) {
-      showToast("Failed to submit review.");
+    } catch {
+      showToast(t.reviewError);
     } finally {
       setReviewSubmitting(false);
     }
@@ -78,8 +78,8 @@ export default function JobDetail() {
     return "★".repeat(full) + "☆".repeat(5 - full);
   };
 
-  if (loading) return <div className="loading">Loading...</div>;
-  if (!job) return <div className="loading">Job not found.</div>;
+  if (loading) return <div className="loading">{t.loading}</div>;
+  if (!job) return <div className="loading">{t.jobNotFound}</div>;
 
   const whatsappLink = poster?.phone
     ? `https://wa.me/91${poster.phone}?text=Hi, I saw your post "${job.title}" on Proxify. I'm interested!`
@@ -89,9 +89,9 @@ export default function JobDetail() {
     <div className="detail-page">
       <div className="detail-header">
         <div className="detail-badges">
-          {job.isUrgent && <span className="badge urgent">🔴 Urgent</span>}
-          {job.type === "skillswap" && <span className="badge skillswap">🔄 Skill Swap</span>}
-          <span className="badge open">{job.status}</span>
+          {job.isUrgent && <span className="badge urgent">{t.urgent}</span>}
+          {job.type === "skillswap" && <span className="badge skillswap">🔄 {t.skillSwap}</span>}
+          <span className="badge open">{t.open}</span>
         </div>
 
         <h1 className="detail-title">{job.title}</h1>
@@ -103,21 +103,19 @@ export default function JobDetail() {
           {job.date && <span className="meta-tag">📅 {job.date}</span>}
           {job.time && <span className="meta-tag">🕐 {job.time}</span>}
           {job.interestedUsers?.length > 0 && (
-            <span className="meta-tag">👥 {job.interestedUsers.length} interested</span>
+            <span className="meta-tag">👥 {job.interestedUsers.length} {t.interested}</span>
           )}
         </div>
       </div>
 
-      {/* Description */}
       <div className="detail-card">
-        <h3>Description</h3>
+        <h3>{t.description}</h3>
         <p>{job.description}</p>
       </div>
 
-      {/* Poster */}
       {poster && (
         <div className="detail-card">
-          <h3>Posted By</h3>
+          <h3>{t.postedBy}</h3>
           <div className="poster-row">
             {poster.photo
               ? <img src={poster.photo} alt={poster.name} className="poster-avatar" />
@@ -127,13 +125,13 @@ export default function JobDetail() {
               <div className="poster-name">{poster.name}</div>
               <div className="poster-rating">
                 {poster.rating > 0
-                  ? <><span className="stars">{renderStars(poster.rating)}</span> {poster.rating} ({poster.reviewCount} reviews)</>
-                  : "No reviews yet"
+                  ? <><span className="stars">{renderStars(poster.rating)}</span> {poster.rating} ({poster.reviewCount} {t.reviews})</>
+                  : t.noReviews
                 }
               </div>
               {poster.skillsOffered?.length > 0 && (
                 <div style={{ marginTop: "0.4rem", fontSize: "0.82rem", color: "var(--text-muted)" }}>
-                  Skills: {poster.skillsOffered.join(", ")}
+                  {t.skills}: {poster.skillsOffered.join(", ")}
                 </div>
               )}
             </div>
@@ -141,36 +139,29 @@ export default function JobDetail() {
         </div>
       )}
 
-      {/* Actions */}
       {user && user.uid !== job.postedBy && (
         <div className="action-area" style={{ marginBottom: "1rem" }}>
           {whatsappLink && (
             <a href={whatsappLink} target="_blank" rel="noreferrer" className="btn-whatsapp">
-              💬 Contact on WhatsApp
+              {t.contactWhatsapp}
             </a>
           )}
           <button className="btn-interest" onClick={handleInterest} disabled={interested}>
-            {interested ? "✅ Interest Expressed" : "👋 Express Interest"}
+            {interested ? t.interestExpressed : t.expressInterest}
           </button>
-          <button
-            className="filter-btn"
-            style={{ textAlign: "center" }}
-            onClick={() => setShowReview(!showReview)}
-          >
-            ⭐ Leave a Review
+          <button className="filter-btn" style={{ textAlign: "center" }} onClick={() => setShowReview(!showReview)}>
+            {t.leaveReview}
           </button>
         </div>
       )}
 
-      {/* Review Form */}
       {showReview && (
         <div className="detail-card">
-          <h3>Leave a Review</h3>
+          <h3>{t.leaveReview}</h3>
           <StarPicker value={stars} onChange={setStars} />
           <textarea
-            className="form-group"
             rows={3}
-            placeholder="Share your experience..."
+            placeholder={t.shareExperience}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             style={{
@@ -179,13 +170,8 @@ export default function JobDetail() {
               fontFamily: "DM Sans, sans-serif", fontSize: "0.9rem", marginTop: "0.5rem"
             }}
           />
-          <button
-            className="btn-primary"
-            style={{ marginTop: "0.8rem" }}
-            onClick={handleReview}
-            disabled={reviewSubmitting}
-          >
-            {reviewSubmitting ? "Submitting..." : "Submit Review"}
+          <button className="btn-primary" style={{ marginTop: "0.8rem" }} onClick={handleReview} disabled={reviewSubmitting}>
+            {reviewSubmitting ? t.submitting : t.submitReview}
           </button>
         </div>
       )}

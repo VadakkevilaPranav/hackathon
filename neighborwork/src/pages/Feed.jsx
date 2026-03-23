@@ -2,25 +2,20 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getAllJobs } from "../services/jobService";
+import { useLang } from "../context/LanguageContext";
 
-const CATEGORIES = ["All", "Plumbing", "Electrical", "Music", "Tutoring", "Delivery", "Cleaning", "Carpentry", "Cooking", "Other"];
+const CATEGORY_KEYS = ["all", "plumbing", "electrical", "music", "tutoring", "delivery", "cleaning", "carpentry", "cooking", "other"];
 
-function JobCard({ job }) {
+function JobCard({ job, t }) {
   const isUrgent = job.isUrgent;
   const isSkillSwap = job.type === "skillswap";
-
-  const formatDate = (ts) => {
-    if (!ts) return "";
-    const d = ts.toDate ? ts.toDate() : new Date(ts);
-    return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-  };
 
   return (
     <Link to={`/job/${job.id}`} className={`job-card ${isUrgent ? "urgent" : ""}`}>
       <div className="card-top">
         <span className="card-title">{job.title}</span>
         <span className={`badge ${isUrgent ? "urgent" : isSkillSwap ? "skillswap" : "open"}`}>
-          {isUrgent ? "🔴 Urgent" : isSkillSwap ? "Skill Swap" : "Open"}
+          {isUrgent ? t.urgent : isSkillSwap ? t.skillSwap : t.open}
         </span>
       </div>
       <p className="card-desc">
@@ -38,9 +33,10 @@ function JobCard({ job }) {
 }
 
 export default function Feed({ type }) {
+  const { t } = useLang();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState("All");
+  const [category, setCategory] = useState("all");
   const [showUrgentOnly, setShowUrgentOnly] = useState(false);
 
   useEffect(() => {
@@ -51,7 +47,7 @@ export default function Feed({ type }) {
   }, [type]);
 
   const filtered = jobs.filter((j) => {
-    if (category !== "All" && j.category !== category) return false;
+    if (category !== "all" && j.category?.toLowerCase() !== category) return false;
     if (showUrgentOnly && !j.isUrgent) return false;
     return true;
   });
@@ -59,22 +55,18 @@ export default function Feed({ type }) {
   return (
     <div>
       <div className="feed-header">
-        <h1>{type === "skillswap" ? "🔄 Skill Swap" : "💼 Browse Jobs"}</h1>
-        <p>
-          {type === "skillswap"
-            ? "Exchange skills with people in your city"
-            : "Find micro-jobs and tasks near you"}
-        </p>
+        <h1>{type === "skillswap" ? t.skillSwapTitle : t.browseJobsTitle}</h1>
+        <p>{type === "skillswap" ? t.skillSwapSubtitle : t.browseJobsSubtitle}</p>
       </div>
 
       <div className="filter-bar">
-        {CATEGORIES.map((c) => (
+        {CATEGORY_KEYS.map((key) => (
           <button
-            key={c}
-            className={`filter-btn ${category === c ? "active" : ""}`}
-            onClick={() => setCategory(c)}
+            key={key}
+            className={`filter-btn ${category === key ? "active" : ""}`}
+            onClick={() => setCategory(key)}
           >
-            {c}
+            {t[key]}
           </button>
         ))}
         <button
@@ -82,21 +74,21 @@ export default function Feed({ type }) {
           style={showUrgentOnly ? { borderColor: "var(--urgent)", color: "var(--urgent)", background: "var(--urgent-dim)" } : {}}
           onClick={() => setShowUrgentOnly((v) => !v)}
         >
-          🔴 Urgent Only
+          {t.urgentOnly}
         </button>
       </div>
 
       {loading ? (
-        <div className="loading">Loading jobs...</div>
+        <div className="loading">{t.loadingJobs}</div>
       ) : filtered.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">🔍</div>
-          <p>No jobs found. Try a different filter or be the first to post!</p>
+          <p>{t.noJobsFound}</p>
         </div>
       ) : (
         <div className="jobs-grid">
           {filtered.map((job) => (
-            <JobCard key={job.id} job={job} />
+            <JobCard key={job.id} job={job} t={t} />
           ))}
         </div>
       )}

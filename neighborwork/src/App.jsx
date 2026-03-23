@@ -1,6 +1,7 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route, NavLink, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { LanguageProvider, useLang } from "./context/LanguageContext";
 import Feed from "./pages/Feed";
 import PostJob from "./pages/PostJob";
 import JobDetail from "./pages/JobDetail";
@@ -15,32 +16,39 @@ function PrivateRoute({ children }) {
 
 function Navbar() {
   const { user, logout } = useAuth();
+  const { t, lang, toggleLang } = useLang();
+
   return (
     <nav className="navbar">
       <NavLink to="/" className="nav-logo">
-        <span className="logo-icon">⚡</span> Proxify
+        {t.brand}
       </NavLink>
       <div className="nav-links">
         <NavLink to="/" end className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-          Browse
+          {t.browse}
         </NavLink>
         <NavLink to="/skillswap" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-          Skill Swap
+          {t.skillSwap}
         </NavLink>
         {user && (
           <>
             <NavLink to="/post" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-              + Post
+              {t.post}
             </NavLink>
             <NavLink to="/profile" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-              Profile
+              {t.profile}
             </NavLink>
-            <button className="btn-logout" onClick={logout}>Logout</button>
+            <button className="btn-logout" onClick={logout}>{t.logout}</button>
           </>
         )}
         {!user && (
-          <NavLink to="/login" className="btn-signin">Sign In</NavLink>
+          <NavLink to="/login" className="btn-signin">{t.signIn}</NavLink>
         )}
+
+        {/* Language Toggle */}
+        <button className="btn-lang" onClick={toggleLang} title="Switch language">
+          {lang === "en" ? "മലയാളം" : "English"}
+        </button>
       </div>
     </nav>
   );
@@ -48,21 +56,23 @@ function Navbar() {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Navbar />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Feed type="job" />} />
-            <Route path="/skillswap" element={<Feed type="skillswap" />} />
-            <Route path="/job/:id" element={<JobDetail />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/post" element={<PrivateRoute><PostJob /></PrivateRoute>} />
-            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-          </Routes>
-        </main>
-      </BrowserRouter>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Navbar />
+          <main className="main-content">
+            <Routes>
+              <Route path="/" element={<Feed type="job" />} />
+              <Route path="/skillswap" element={<Feed type="skillswap" />} />
+              <Route path="/job/:id" element={<JobDetail />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/post" element={<PrivateRoute><PostJob /></PrivateRoute>} />
+              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+            </Routes>
+          </main>
+        </BrowserRouter>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

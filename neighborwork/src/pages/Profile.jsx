@@ -2,10 +2,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LanguageContext";
 import { getUserById, updateUserProfile, getJobsByUser } from "../services/jobService";
 
 export default function Profile() {
   const { user } = useAuth();
+  const { t } = useLang();
   const [profile, setProfile] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [editing, setEditing] = useState(false);
@@ -48,20 +50,19 @@ export default function Profile() {
       await updateUserProfile(user.uid, data);
       setProfile((p) => ({ ...p, ...data }));
       setEditing(false);
-      setToast("Profile updated!");
+      setToast(t.profileSaved);
     } catch {
-      setToast("Failed to save. Try again.");
+      setToast(t.profileError);
     } finally {
       setSaving(false);
       setTimeout(() => setToast(""), 3000);
     }
   };
 
-  if (!profile) return <div className="loading">Loading profile...</div>;
+  if (!profile) return <div className="loading">{t.loadingProfile}</div>;
 
   return (
     <div className="profile-page">
-      {/* Hero */}
       <div className="profile-hero">
         {profile.photo
           ? <img src={profile.photo} alt={profile.name} className="profile-avatar" />
@@ -72,11 +73,11 @@ export default function Profile() {
           <div className="profile-sub">
             {profile.area || profile.city
               ? `📍 ${[profile.area, profile.city].filter(Boolean).join(", ")}`
-              : "📍 Location not set"}
+              : t.locationNotSet}
           </div>
           {profile.rating > 0 && (
             <div className="profile-sub" style={{ marginTop: "0.2rem" }}>
-              ⭐ {profile.rating} ({profile.reviewCount} reviews)
+              ⭐ {profile.rating} ({profile.reviewCount} {t.reviews})
             </div>
           )}
           {profile.skillsOffered?.length > 0 && (
@@ -86,51 +87,49 @@ export default function Profile() {
           )}
           {profile.skillsNeeded?.length > 0 && (
             <div className="skill-chips">
-              {profile.skillsNeeded.map((s) => <span key={s} className="chip need">needs: {s}</span>)}
+              {profile.skillsNeeded.map((s) => <span key={s} className="chip need">{t.needsLabel} {s}</span>)}
             </div>
           )}
         </div>
         <button className="filter-btn" onClick={() => setEditing(!editing)}>
-          {editing ? "Cancel" : "✏️ Edit"}
+          {editing ? t.cancelEdit : t.editProfile}
         </button>
       </div>
 
-      {/* Edit Form */}
       {editing && (
         <div className="form-card" style={{ marginBottom: "1.5rem" }}>
           <div className="form-row">
             <div className="form-group">
-              <label>Area / Locality</label>
-              <input type="text" value={form.area} onChange={set("area")} placeholder="e.g. Kozhikode Beach" />
+              <label>{t.areaLocalityLabel}</label>
+              <input type="text" value={form.area} onChange={set("area")} placeholder={t.areaPlaceholder} />
             </div>
             <div className="form-group">
-              <label>City</label>
-              <input type="text" value={form.city} onChange={set("city")} placeholder="e.g. Kozhikode" />
+              <label>{t.cityLabel}</label>
+              <input type="text" value={form.city} onChange={set("city")} placeholder={t.cityPlaceholder} />
             </div>
           </div>
           <div className="form-group">
-            <label>Phone (for WhatsApp contact)</label>
-            <input type="tel" value={form.phone} onChange={set("phone")} placeholder="e.g. 9876543210" />
+            <label>{t.phoneLabel}</label>
+            <input type="tel" value={form.phone} onChange={set("phone")} placeholder={t.contactPhonePlaceholder} />
           </div>
           <div className="form-group">
-            <label>Skills I Offer (comma separated)</label>
-            <input type="text" value={form.skillsOffered} onChange={set("skillsOffered")} placeholder="e.g. Plumbing, Guitar, Cooking" />
+            <label>{t.skillsOfferedLabel}</label>
+            <input type="text" value={form.skillsOffered} onChange={set("skillsOffered")} placeholder={t.skillsOfferedPlaceholder} />
           </div>
           <div className="form-group">
-            <label>Skills I Want to Learn (comma separated)</label>
-            <input type="text" value={form.skillsNeeded} onChange={set("skillsNeeded")} placeholder="e.g. Driving, Tailoring" />
+            <label>{t.skillsNeededLabel}</label>
+            <input type="text" value={form.skillsNeeded} onChange={set("skillsNeeded")} placeholder={t.skillsNeededPlaceholder} />
           </div>
           <button className="btn-primary" onClick={saveProfile} disabled={saving}>
-            {saving ? "Saving..." : "Save Profile"}
+            {saving ? t.saving : t.saveProfile}
           </button>
         </div>
       )}
 
-      {/* My Jobs */}
-      <div className="section-title">My Posts ({jobs.length})</div>
+      <div className="section-title">{t.myPosts} ({jobs.length})</div>
       {jobs.length === 0 ? (
         <div className="empty-state" style={{ padding: "2rem 0" }}>
-          <p>You haven't posted anything yet. <Link to="/post" style={{ color: "var(--accent)" }}>Post a job →</Link></p>
+          <p>{t.noPostsYet} <Link to="/post" style={{ color: "var(--accent)" }}>{t.postAJob}</Link></p>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
@@ -153,8 +152,8 @@ export default function Profile() {
                 </div>
               </div>
               <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                {job.isUrgent && <span className="badge urgent">Urgent</span>}
-                <span className="badge open">{job.status}</span>
+                {job.isUrgent && <span className="badge urgent">{t.urgent}</span>}
+                <span className="badge open">{t.open}</span>
                 <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
                   👥 {job.interestedUsers?.length || 0}
                 </span>
