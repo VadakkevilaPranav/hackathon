@@ -35,6 +35,7 @@ export default function Feed({ type }) {
   const [loading, setLoading] = useState(true)
   const [category, setCategory] = useState('all')
   const [urgentOnly, setUrgentOnly] = useState(false)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     setLoading(true)
@@ -44,6 +45,16 @@ export default function Feed({ type }) {
   const filtered = jobs.filter(j => {
     if (category !== 'all' && j.category?.toLowerCase() !== category) return false
     if (urgentOnly && !j.is_urgent) return false
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      const matches =
+        j.title?.toLowerCase().includes(q) ||
+        j.description?.toLowerCase().includes(q) ||
+        j.area?.toLowerCase().includes(q) ||
+        j.city?.toLowerCase().includes(q) ||
+        j.category?.toLowerCase().includes(q)
+      if (!matches) return false
+    }
     return true
   })
 
@@ -53,6 +64,22 @@ export default function Feed({ type }) {
         <h1>{type === 'skillswap' ? t.skillSwapTitle : t.browseJobsTitle}</h1>
         <p>{type === 'skillswap' ? t.skillSwapSubtitle : t.browseJobsSubtitle}</p>
       </div>
+
+      {/* Search Bar */}
+      <div className="search-bar-wrap">
+        <span className="search-icon">🔍</span>
+        <input
+          className="search-bar"
+          type="text"
+          placeholder={type === 'skillswap' ? 'Search skills, areas...' : 'Search jobs, areas, categories...'}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        {search && (
+          <button className="search-clear" onClick={() => setSearch('')}>✕</button>
+        )}
+      </div>
+
       <div className="filter-bar">
         {CATEGORY_KEYS.map(key => (
           <button key={key} className={`filter-btn ${category === key ? 'active' : ''}`} onClick={() => setCategory(key)}>{t[key]}</button>
@@ -63,6 +90,14 @@ export default function Feed({ type }) {
           onClick={() => setUrgentOnly(v => !v)}
         >{t.urgentOnly}</button>
       </div>
+
+      {/* Result count when searching */}
+      {search.trim() && (
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+          {filtered.length} result{filtered.length !== 1 ? 's' : ''} for "{search}"
+        </p>
+      )}
+
       {loading ? <div className="loading">{t.loadingJobs}</div>
         : filtered.length === 0 ? <div className="empty-state"><div className="empty-icon">🔍</div><p>{t.noJobsFound}</p></div>
         : <div className="jobs-grid">{filtered.map(job => <JobCard key={job.id} job={job} t={t} />)}</div>
