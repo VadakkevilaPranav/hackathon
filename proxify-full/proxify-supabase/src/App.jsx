@@ -8,6 +8,7 @@ import JobDetail from './pages/JobDetail'
 import Profile from './pages/Profile'
 import Login from './pages/Login'
 import './App.css'
+import logo from './assets/logo.png'
 
 function PrivateRoute({ children }) {
   const { user } = useAuth()
@@ -19,7 +20,10 @@ function Navbar() {
   const { t, lang, toggleLang } = useLang()
   return (
     <nav className="navbar">
-      <NavLink to="/" className="nav-logo">{t.brand}</NavLink>
+  <NavLink to="/" className="nav-logo">
+  <img src={logo} alt="" height={22} />
+  {t.brand}
+</NavLink>
       <div className="nav-links">
         <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>{t.browse}</NavLink>
         <NavLink to="/skillswap" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>{t.skillSwap}</NavLink>

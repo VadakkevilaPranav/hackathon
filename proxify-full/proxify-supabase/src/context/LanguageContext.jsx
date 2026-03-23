@@ -3,8 +3,8 @@ import { createContext, useContext, useState } from 'react'
 
 const translations = {
   en: {
-    brand: '⚡ Proxify',
-    browse: 'Browse',
+    brand: ' Proxify',
+    browse: 'Browse Jobs',
     skillSwap: 'Skill Swap',
     post: '+ Post',
     profile: 'Profile',
