@@ -23,7 +23,7 @@ export default function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <div className="brand">⚡ NeighborWork</div>
+        <div className="brand">⚡ Proxify</div>
         <p className="tagline">
           Find micro-jobs, swap skills, and connect with people in your neighborhood.
         </p>

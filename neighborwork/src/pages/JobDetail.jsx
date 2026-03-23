@@ -82,7 +82,7 @@ export default function JobDetail() {
   if (!job) return <div className="loading">Job not found.</div>;
 
   const whatsappLink = poster?.phone
-    ? `https://wa.me/91${poster.phone}?text=Hi, I saw your post "${job.title}" on NeighborWork. I'm interested!`
+    ? `https://wa.me/91${poster.phone}?text=Hi, I saw your post "${job.title}" on Proxify. I'm interested!`
     : null;
 
   return (

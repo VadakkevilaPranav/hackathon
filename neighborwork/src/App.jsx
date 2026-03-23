@@ -18,7 +18,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <NavLink to="/" className="nav-logo">
-        <span className="logo-icon">⚡</span> NeighborWork
+        <span className="logo-icon">⚡</span> Proxify
       </NavLink>
       <div className="nav-links">
         <NavLink to="/" end className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
