@@ -40,7 +40,7 @@ h1, h2, h3, .nav-logo {
   align-items: center;
   justify-content: space-between;
   padding: 0 2rem;
-  height: 56px;
+  height: 60px;
   background: rgba(244,247,244,0.92);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
@@ -51,6 +51,9 @@ h1, h2, h3, .nav-logo {
   align-items: center;
   gap: 6px;
   font-size: 1.4rem;
+
+
+  
   font-weight: 800;
   color: var(--accent);
   text-decoration: none;
@@ -94,13 +97,11 @@ h1, h2, h3, .nav-logo {
   background: var(--accent);
   color: #fff;
   font-weight: 600;
-  font-size: 0.82rem;
-  padding: 6px 14px;
+  font-size: 0.85rem;
+  padding: 7px 16px;
   border-radius: 8px;
   text-decoration: none;
   transition: opacity 0.2s;
-  white-space: nowrap;
-  line-height: 1.2;
 }
 
 .btn-signin:hover { opacity: 0.85; }
@@ -109,13 +110,11 @@ h1, h2, h3, .nav-logo {
   background: none;
   border: 1px solid var(--border);
   color: var(--text-muted);
-  font-size: 0.82rem;
-  padding: 5px 12px;
+  font-size: 0.85rem;
+  padding: 6px 14px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
-  line-height: 1.2;
 }
 
 .btn-logout:hover { border-color: var(--urgent); color: var(--urgent); }
@@ -125,14 +124,13 @@ h1, h2, h3, .nav-logo {
   border: 1px solid var(--border);
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 500;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
-  line-height: 1.2;
 }
 
 .btn-lang:hover {
