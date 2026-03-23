@@ -66,7 +66,7 @@ const translations = {
     postAJob: 'Post a job →', loadingProfile: 'Loading profile...', needsLabel: 'needs:',
   },
   ml: {
-    brand: '⚡ പ്രോക്സിഫൈ',
+    brand: ' പ്രോക്സിഫൈ',
     browse: 'തൊഴിലുകൾ',
     skillSwap: 'നൈപുണ്യ വിനിമയം',
     post: '+ പോസ്റ്റ്',
