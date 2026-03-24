@@ -23,14 +23,20 @@ export default function PostJob() {
 
   const handleSubmit = async e => {
     e.preventDefault()
+    if (loading) return
     if (!form.title || !form.description || !form.area) return showToast(t.fillRequired)
+    if (!user?.id) return showToast(t.signInFirst || 'Please sign in first')
     setLoading(true)
     try {
       const jobId = await createJob(user.id, form)
       showToast(t.postSuccess)
       setTimeout(() => navigate(`/job/${jobId}`), 1000)
-    } catch(err) { console.error('Post job error:', err); showToast(t.postError) }
-    finally { setLoading(false) }
+    } catch(err) {
+      console.error('Post job error:', err)
+      showToast(t.postError + (err?.message ? `: ${err.message}` : ''))
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

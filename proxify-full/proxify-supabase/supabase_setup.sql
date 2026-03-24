@@ -61,10 +61,10 @@ create policy "Users are viewable by all" on public.users for select using (auth
 create policy "Users can insert own profile" on public.users for insert with check (auth.uid() = id);
 create policy "Users can update own profile" on public.users for update using (auth.uid() = id);
 
--- Jobs: anyone logged in can read and create, only poster can update
+-- Jobs: anyone logged in can read and create, any authenticated user can update
 create policy "Jobs viewable by all" on public.jobs for select using (auth.role() = 'authenticated');
 create policy "Authenticated users can post jobs" on public.jobs for insert with check (auth.uid() = posted_by);
-create policy "Job poster can update" on public.jobs for update using (auth.uid() = posted_by);
+create policy "Authenticated users can update jobs" on public.jobs for update using (auth.role() = 'authenticated');
 
 -- Reviews: anyone logged in can read and insert
 create policy "Reviews viewable by all" on public.reviews for select using (auth.role() = 'authenticated');

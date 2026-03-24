@@ -57,7 +57,8 @@ export function AuthProvider({ children }) {
       options: { redirectTo: window.location.origin },
     })
 
-  const logout = () => {
+  const logout = async () => {
+    try { await supabase.auth.signOut() } catch (e) { console.error('Sign out error:', e) }
     localStorage.clear()
     sessionStorage.clear()
     setUser(null)

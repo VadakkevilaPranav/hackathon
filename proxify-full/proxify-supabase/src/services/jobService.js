@@ -4,9 +4,19 @@ import { supabase } from '../supabase'
 // ─── JOBS ─────────────────────────────────────────────────────────────────────
 
 export const createJob = async (userId, jobData) => {
-  const { data, error } = await supabase
+  // Generate UUID client-side — avoids depending on select-back
+  const jobId = crypto.randomUUID()
+  console.log('[createJob] Starting insert with id:', jobId, 'userId:', userId)
+
+  // Wrap in a timeout to prevent infinite hangs
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Request timed out after 15 seconds')), 15000)
+  )
+
+  const insertPromise = supabase
     .from('jobs')
     .insert({
+      id: jobId,
       title: jobData.title,
       description: jobData.description,
       category: jobData.category,
@@ -17,16 +27,19 @@ export const createJob = async (userId, jobData) => {
       area: jobData.area,
       city: jobData.city,
       is_urgent: jobData.isUrgent,
-      contact_phone: jobData.contactPhone,
       posted_by: userId,
-      interested_users: [],
       status: 'open',
     })
-    .select('id')
-    .single()
 
-  if (error) throw error
-  return data.id
+  const { error } = await Promise.race([insertPromise, timeoutPromise])
+
+  if (error) {
+    console.error('[createJob] Supabase insert error:', error)
+    throw error
+  }
+
+  console.log('[createJob] Insert successful, jobId:', jobId)
+  return jobId
 }
 
 export const getAllJobs = async ({ type } = {}) => {
@@ -55,20 +68,29 @@ export const getJobById = async (jobId) => {
 
 export const expressInterest = async (jobId, userId) => {
   // Fetch current interested_users array then append
-  const { data: job } = await supabase
+  const { data: job, error: fetchError } = await supabase
     .from('jobs')
     .select('interested_users')
     .eq('id', jobId)
     .single()
 
-  const updated = [...(job?.interested_users || []), userId]
+  if (fetchError) throw fetchError
+
+  // Prevent duplicate entries
+  const current = job?.interested_users || []
+  if (current.includes(userId)) return
+
+  const updated = [...current, userId]
 
   const { error } = await supabase
     .from('jobs')
     .update({ interested_users: updated })
     .eq('id', jobId)
 
-  if (error) throw error
+  if (error) {
+    console.error('Express interest error:', error)
+    throw error
+  }
 }
 
 export const updateJobStatus = async (jobId, status) => {
